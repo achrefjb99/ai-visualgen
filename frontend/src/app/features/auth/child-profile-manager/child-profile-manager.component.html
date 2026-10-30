@@ -1,0 +1,103 @@
+<main class="min-h-screen w-full bg-kids-surface-soft px-4 py-6 font-body text-kids-dark sm:px-6 lg:px-10 lg:py-10">
+  <div class="w-full space-y-8">
+    <header class="w-full rounded-3xl border-4 border-kids-primary-light bg-white p-6 shadow-kids-card md:flex md:items-center md:justify-between md:gap-8 md:p-9">
+      <div class="flex items-center gap-5">
+        <div class="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border-4 border-white bg-gradient-to-tr from-kids-primary to-sky-300 text-5xl shadow-kids-soft">🎒</div>
+        <div>
+          <span class="mb-2 inline-block rounded-full bg-kids-secondary-light px-4 py-1.5 font-kids text-sm font-bold uppercase tracking-wide text-kids-secondary-dark">Espace Parents & Enseignants</span>
+          <h1 class="font-kids text-3xl font-bold tracking-tight text-kids-dark md:text-4xl">Profils des Petits Aventuriers</h1>
+          <p class="mt-2 text-base font-medium text-kids-dark-muted md:text-lg">Crée un profil et personnalise son univers d’apprentissage.</p>
+        </div>
+      </div>
+      <div class="mt-6 flex items-center gap-4 rounded-2xl border-2 border-kids-primary-light bg-kids-surface-card px-6 py-4 md:mt-0">
+        <span class="text-4xl">🌟</span><div><div class="font-kids text-3xl font-bold text-kids-primary-dark">{{ totalChildren() }}</div><div class="text-sm font-bold uppercase text-kids-dark-muted">Aventurier(s)</div></div>
+      </div>
+    </header>
+
+    @if (feedbackMessage(); as msg) {
+      <div class="flex items-center justify-between rounded-2xl border-2 p-5 shadow-lg" [ngClass]="{'border-emerald-400 bg-emerald-50 text-emerald-900': msg.type === 'success', 'border-rose-400 bg-rose-50 text-rose-900': msg.type === 'error'}" role="status">
+        <div class="flex items-center gap-3"><span class="text-3xl">{{ msg.type === 'success' ? '🎉' : '⚠️' }}</span><span class="font-kids text-lg font-semibold">{{ msg.text }}</span></div>
+        <button type="button" (click)="dismissFeedback()" class="rounded-xl p-2 text-xl font-bold hover:bg-black/5" aria-label="Fermer le message">×</button>
+      </div>
+    }
+
+    <div class="grid w-full grid-cols-1 items-start gap-8 xl:grid-cols-12">
+      <section class="rounded-3xl border-4 border-kids-primary-light bg-white p-6 shadow-kids-card md:p-9 xl:col-span-4">
+        <div class="mb-8 flex items-center gap-4 border-b-2 border-kids-surface-soft pb-5">
+          <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-kids-primary-light text-3xl">✨</div>
+          <div><h2 class="font-kids text-2xl font-bold">Inscrire un aventurier</h2><p class="mt-1 text-sm text-kids-dark-muted">Les champs marqués * sont obligatoires</p></div>
+        </div>
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-7">
+          <div>
+            <label for="username" class="mb-2 block font-kids text-base font-bold">Prénom ou nom d’aventurier *</label>
+            <input id="username" type="text" maxlength="30" formControlName="username" autocomplete="off" placeholder="Ex. Léo l’Explorateur" class="w-full rounded-2xl border-2 px-5 py-4 text-lg font-semibold placeholder-kids-dark-muted/60 focus:outline-none focus:ring-4 focus:ring-kids-primary/20" [ngClass]="{'border-rose-400 bg-rose-50/40': profileForm.controls.username.invalid && profileForm.controls.username.touched, 'border-kids-primary/30 bg-kids-surface-soft focus:border-kids-primary focus:bg-white': !(profileForm.controls.username.invalid && profileForm.controls.username.touched)}" />
+            @if (profileForm.controls.username.invalid && profileForm.controls.username.touched) { <p class="mt-2 text-sm font-semibold text-rose-600">Entre un nom d’au moins 3 caractères.</p> }
+          </div>
+          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div>
+              <label for="age" class="mb-2 block font-kids text-base font-bold">Âge (5 à 14 ans) *</label>
+              <input id="age" type="number" min="5" max="14" formControlName="age" class="w-full rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-5 py-4 text-lg font-semibold focus:border-kids-primary focus:outline-none focus:ring-4 focus:ring-kids-primary/20" />
+              @if (profileForm.controls.age.invalid && profileForm.controls.age.touched) { <p class="mt-2 text-sm font-semibold text-rose-600">L’âge doit être entre 5 et 14 ans.</p> }
+            </div>
+            <div>
+              <label for="grade_level" class="mb-2 block font-kids text-base font-bold">Classe / niveau *</label>
+              <select id="grade_level" formControlName="grade_level" class="w-full rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-4 py-4 text-base font-semibold focus:border-kids-primary focus:outline-none focus:ring-4 focus:ring-kids-primary/20">
+                @for (grade of gradeLevels; track grade.value) { <option [value]="grade.value">{{ grade.label }}</option> }
+              </select>
+            </div>
+          </div>
+          <fieldset>
+            <legend class="mb-3 font-kids text-base font-bold">Univers d’aventure préféré *</legend>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              @for (theme of themes; track theme.id) {
+                <button type="button" (click)="selectTheme(theme.id)" [attr.aria-pressed]="profileForm.controls.favorite_theme.value === theme.id" class="min-h-28 rounded-2xl border-3 p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-kids-soft focus:outline-none focus:ring-4 focus:ring-kids-primary/20" [ngClass]="{'border-kids-primary bg-gradient-to-tr from-sky-100 to-white ring-4 ring-kids-primary/20 shadow-kids-soft': profileForm.controls.favorite_theme.value === theme.id, 'border-slate-200 bg-white hover:border-kids-primary-light': profileForm.controls.favorite_theme.value !== theme.id}">
+                  <span class="flex items-center gap-3"><span class="text-4xl">{{ theme.emoji }}</span><span class="font-kids text-lg font-bold">{{ theme.label }}</span></span><span class="mt-2 block text-sm font-medium text-kids-dark-muted">{{ theme.description }}</span>
+                </button>
+              }
+            </div>
+          </fieldset>
+          <button type="submit" [disabled]="isSubmitting()" class="btn-kids-primary min-h-14 w-full rounded-2xl px-6 py-4 text-lg shadow-kids-button disabled:cursor-not-allowed disabled:opacity-60">
+            @if (isSubmitting()) { <span class="animate-spin">⏳</span><span>Création du profil…</span> } @else { <span>🚀 Créer le profil</span> }
+          </button>
+        </form>
+      </section>
+
+      <section class="min-w-0 rounded-3xl border-4 border-kids-primary-light bg-white p-6 shadow-kids-card md:p-9 xl:col-span-8">
+        <div class="mb-7 flex flex-col gap-4 border-b-2 border-kids-surface-soft pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div><h2 class="font-kids text-2xl font-bold md:text-3xl">Mes aventuriers inscrits</h2><p class="mt-1 text-base text-kids-dark-muted">Choisis un profil pour lancer son aventure.</p></div>
+          <label class="flex items-center gap-3 font-kids font-bold">Filtrer par classe
+            <select [value]="selectedGradeFilter()" (change)="onGradeFilterChange($event)" class="rounded-xl border-2 border-kids-primary/30 bg-kids-surface-soft px-3 py-2 font-body text-sm font-semibold focus:border-kids-primary focus:outline-none">
+              <option value="ALL">Toutes</option>@for (grade of gradeLevels; track grade.value) { <option [value]="grade.value">{{ grade.label }}</option> }
+            </select>
+          </label>
+        </div>
+        @if (isLoading()) { <div class="rounded-2xl bg-kids-surface-card p-10 text-center font-kids text-lg font-bold">Chargement des profils…</div> }
+        @else if (!hasChildren()) { <div class="rounded-2xl border-2 border-dashed border-kids-primary-light bg-kids-surface-card p-10 text-center"><div class="text-5xl">🧭</div><p class="mt-3 font-kids text-xl font-bold">Aucun aventurier pour le moment</p><p class="mt-1 text-kids-dark-muted">Crée un profil avec le formulaire pour commencer.</p></div> }
+        @else if (!filteredChildren().length) { <div class="rounded-2xl bg-kids-surface-card p-8 text-center font-kids font-bold">Aucun profil pour cette classe.</div> }
+        @else {
+          <div class="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3">
+            @for (child of filteredChildren(); track child.id) {
+              @let theme = getThemeConfig(child.favorite_theme);
+              <article class="flex min-w-0 flex-col rounded-3xl border-4 bg-gradient-to-br p-6 shadow-kids-card transition-all duration-200 hover:-translate-y-1 hover:shadow-kids-floating" [ngClass]="[theme.bgGradient, theme.borderColor]">
+                <div class="flex items-start justify-between gap-3"><div class="flex h-16 w-16 items-center justify-center rounded-2xl border-2 text-4xl" [ngClass]="theme.avatarBg">{{ theme.emoji }}</div><button type="button" (click)="openDeleteModal(child)" class="rounded-xl p-3 text-xl text-rose-500 transition-colors hover:bg-rose-100 hover:text-rose-700" aria-label="Supprimer le profil">🗑️</button></div>
+                <h3 class="mt-4 break-words font-kids text-2xl font-bold">{{ child.username }}</h3>
+                <div class="mt-4 flex flex-wrap gap-2"><span class="rounded-full border border-slate-200 bg-white px-3 py-1.5 font-kids text-sm font-bold">🎂 {{ child.age }} ans</span><span class="rounded-full px-3 py-1.5 font-kids text-sm font-bold" [ngClass]="[theme.badgeBg, theme.badgeText]">📚 {{ child.grade_level }}</span></div>
+                <p class="mt-3 text-sm font-medium text-kids-dark-muted">Thème : <strong class="font-kids text-kids-dark">{{ child.favorite_theme }}</strong></p>
+                <a [routerLink]="['/home', child.id]" class="btn-kids-secondary mt-6 min-h-12 w-full px-5 py-3 text-base inline-flex items-center justify-center">🎮 Lancer l’aventure</a>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+
+  @if (childToDelete(); as target) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="delete-title">
+      <div class="w-full max-w-lg space-y-5 rounded-3xl border-4 border-rose-300 bg-white p-7 text-center shadow-2xl md:p-9">
+        <div class="text-5xl">😢</div><h3 id="delete-title" class="font-kids text-2xl font-bold">Supprimer cet aventurier ?</h3><p class="text-kids-dark-muted">Confirmer la suppression du profil de <strong class="text-kids-dark">{{ target.username }}</strong> ?</p>
+        <div class="flex justify-center gap-3"><button type="button" (click)="closeDeleteModal()" [disabled]="isDeleting()" class="rounded-full border-2 border-slate-300 bg-slate-100 px-5 py-3 font-kids font-bold hover:bg-slate-200">Garder</button><button type="button" (click)="confirmDelete()" [disabled]="isDeleting()" class="btn-kids-accent px-5 py-3 disabled:opacity-60">{{ isDeleting() ? 'Suppression…' : 'Oui, supprimer' }}</button></div>
+      </div>
+    </div>
+  }
+</main>

@@ -1,0 +1,107 @@
+<div class="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+  <div class="w-full max-w-md">
+    <!-- Carte ludique de connexion -->
+    <div class="relative overflow-hidden rounded-3xl border-4 border-kids-primary-light bg-white p-7 shadow-kids-card sm:p-9">
+      <!-- Bulles décoratives en arrière-plan -->
+      <div class="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-kids-primary-light/40 blur-xl"></div>
+      <div class="pointer-events-none absolute -bottom-8 -left-8 h-28 w-28 rounded-full bg-kids-secondary-light/50 blur-xl"></div>
+
+      <!-- En-tête -->
+      <div class="relative z-10 text-center">
+        <div class="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-tr from-kids-primary to-sky-300 text-4xl shadow-kids-soft border-4 border-white">
+          🔐
+        </div>
+        <h1 class="mt-4 font-kids text-3xl font-bold text-kids-dark">Espace Connexion</h1>
+        <p class="mt-1 font-body text-sm font-medium text-kids-dark-muted">
+          Connecte-toi pour retrouver tes cours, aventures et trophées !
+        </p>
+      </div>
+
+      <!-- Message d'erreur -->
+      @if (errorMessage(); as msg) {
+        <div class="relative z-10 mt-5 flex items-center gap-2 rounded-2xl border-2 border-rose-300 bg-rose-50 p-4 text-sm font-bold text-rose-800">
+          <span class="text-xl">⚠️</span>
+          <span>{{ msg }}</span>
+        </div>
+      }
+
+      <!-- Formulaire -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="relative z-10 mt-6 space-y-5">
+        <div>
+          <label for="username" class="block font-kids text-sm font-bold text-kids-dark">
+            Nom d’utilisateur
+          </label>
+          <div class="relative mt-1">
+            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-lg">
+              👤
+            </span>
+            <input
+              id="username"
+              type="text"
+              formControlName="username"
+              placeholder="Ex: prof_dupont ou leo"
+              class="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 py-3 pl-11 pr-4 font-body text-base font-semibold text-kids-dark transition-colors placeholder:text-slate-400 focus:border-kids-primary focus:bg-white focus:outline-none"
+            />
+          </div>
+          @if (loginForm.get('username')?.touched && loginForm.get('username')?.invalid) {
+            <p class="mt-1 font-body text-xs font-bold text-rose-600">
+              Le nom d’utilisateur est requis (2 caractères min).
+            </p>
+          }
+        </div>
+
+        <div>
+          <label for="password" class="block font-kids text-sm font-bold text-kids-dark">
+            Mot de passe
+          </label>
+          <div class="relative mt-1">
+            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-lg">
+              🔑
+            </span>
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              placeholder="••••••••"
+              class="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 py-3 pl-11 pr-4 font-body text-base font-semibold text-kids-dark transition-colors placeholder:text-slate-400 focus:border-kids-primary focus:bg-white focus:outline-none"
+            />
+          </div>
+          @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+            <p class="mt-1 font-body text-xs font-bold text-rose-600">
+              Le mot de passe est requis (4 caractères min).
+            </p>
+          }
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="isLoading()"
+          class="btn-kids-primary min-h-12 w-full text-base disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          @if (isLoading()) {
+            <span class="animate-spin text-lg">⏳</span>
+            <span>Connexion en cours…</span>
+          } @else {
+            <span>🚀 Se connecter</span>
+          }
+        </button>
+      </form>
+
+      <!-- Lien vers inscription et profils -->
+      <div class="relative z-10 mt-6 border-t-2 border-slate-100 pt-5 text-center space-y-3">
+        <div>
+          <p class="font-body text-sm font-medium text-kids-dark-muted">
+            Pas encore de compte parent ou enseignant ?
+          </p>
+          <a
+            routerLink="/register"
+            class="mt-1 inline-flex items-center gap-1.5 font-kids text-sm font-bold text-kids-primary-dark hover:underline"
+          >
+            <span>🎒 Créer un compte ici</span>
+            <span>→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

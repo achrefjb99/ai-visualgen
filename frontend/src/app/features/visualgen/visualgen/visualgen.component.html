@@ -1,0 +1,189 @@
+<!-- AI VisualGen - Creative Image Studio -->
+<div class="visualgen-wrapper">
+
+  <!-- ── Header ── -->
+  <header class="visualgen-header">
+    <div class="header-left">
+      <div class="header-icon">🎨</div>
+      <div>
+        <h1 class="header-title">AI VisualGen</h1>
+        <p class="header-sub">Transforme tes idées en illustrations éducatives magiques !</p>
+      </div>
+    </div>
+    <a [routerLink]="['/home', childId()]" class="btn-back">⬅️ Retour</a>
+  </header>
+
+  <div class="visualgen-body">
+
+    <!-- ── LEFT PANEL: Controls ── -->
+    <section class="control-panel">
+
+      <!-- Prompt Templates -->
+      <div class="card-section">
+        <h2 class="section-title">💡 Sujets populaires</h2>
+        <div class="templates-grid">
+          @for (t of templates(); track t.id) {
+            <button class="template-chip" (click)="applyTemplate(t)">{{ t.label }}</button>
+          }
+        </div>
+      </div>
+
+      <!-- Prompt Input -->
+      <div class="card-section">
+        <h2 class="section-title">✏️ Décris ton illustration</h2>
+        <textarea
+          id="visualgen-prompt"
+          class="prompt-textarea"
+          rows="5"
+          placeholder="Ex : Montre le cycle de l'eau avec le soleil, les nuages et la pluie, style dessin animé…"
+          [value]="prompt()"
+          (input)="prompt.set($any($event.target).value)"
+          [disabled]="isGenerating()"
+          maxlength="1000"
+        ></textarea>
+        <div class="char-count">{{ prompt().length }} / 1000</div>
+      </div>
+
+      <!-- Style Selector -->
+      <div class="card-section">
+        <h2 class="section-title">🎭 Style visuel</h2>
+        <div class="option-grid">
+          @for (s of styles; track s.value) {
+            <button
+              class="option-btn"
+              [class.active]="selectedStyle() === s.value"
+              (click)="selectedStyle.set(s.value)"
+              [disabled]="isGenerating()"
+            >
+              <span class="opt-label">{{ s.label }}</span>
+              <span class="opt-desc">{{ s.desc }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Level Selector -->
+      <div class="card-section">
+        <h2 class="section-title">🎓 Niveau scolaire</h2>
+        <div class="option-grid option-grid-2">
+          @for (l of levels; track l.value) {
+            <button
+              class="option-btn"
+              [class.active]="selectedLevel() === l.value"
+              (click)="selectedLevel.set(l.value)"
+              [disabled]="isGenerating()"
+            >
+              <span class="opt-label">{{ l.label }}</span>
+              <span class="opt-desc">{{ l.desc }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Generate Button -->
+      <button
+        id="visualgen-generate-btn"
+        class="btn-generate"
+        [disabled]="isGenerating() || !prompt().trim()"
+        (click)="generate()"
+      >
+        @if (isGenerating()) {
+          <span class="spinner"></span> Génération en cours…
+        } @else {
+          🪄 Générer l'illustration
+        }
+      </button>
+
+    </section>
+
+    <!-- ── RIGHT PANEL: Preview + Gallery ── -->
+    <section class="preview-panel">
+
+      <!-- Status Messages -->
+      @if (status() === 'generating') {
+        <div class="status-card status-generating">
+          <div class="big-spinner"></div>
+          <p>L'IA crée ton illustration… cela peut prendre quelques secondes.</p>
+        </div>
+      }
+
+      @if (status() === 'error') {
+        <div class="status-card status-error">
+          <span class="status-icon">❌</span>
+          <p>{{ errorMsg() }}</p>
+          <button class="btn-retry" (click)="status.set('idle')">Réessayer</button>
+        </div>
+      }
+
+      <!-- Generated Image Preview -->
+      @if (lastImage(); as img) {
+        <div class="result-card">
+          <div class="result-header">
+            <span class="result-badge">✅ Illustration générée !</span>
+            @if (img.generation_time_s) {
+              <span class="result-time">⏱️ {{ img.generation_time_s }}s</span>
+            }
+          </div>
+          <img
+            [src]="getImageUrl(img.id)"
+            [alt]="img.prompt"
+            class="result-image"
+            loading="lazy"
+          />
+          <p class="result-prompt">"{{ img.prompt }}"</p>
+          <div class="result-meta">
+            <span class="meta-chip">{{ img.style }}</span>
+            <span class="meta-chip">{{ img.level }}</span>
+          </div>
+          <div class="result-actions">
+            <button class="btn-download" (click)="downloadImage(img)">
+              ⬇️ Télécharger
+            </button>
+            <button class="btn-regen" (click)="regenerate()">
+              🔁 Régénérer
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (status() === 'idle' && !lastImage()) {
+        <div class="empty-state">
+          <div class="empty-icon">🖼️</div>
+          <p>Ton illustration apparaîtra ici</p>
+          <p class="empty-sub">Décris ce que tu veux voir à gauche et clique sur "Générer" !</p>
+        </div>
+      }
+
+      <!-- Gallery -->
+      @if (gallery().length > 0) {
+        <div class="gallery-section">
+          <h2 class="section-title">🗃️ Mes créations récentes</h2>
+          <div class="gallery-grid">
+            @for (img of gallery(); track img.id) {
+              <div class="gallery-card">
+                <img
+                  [src]="getImageUrl(img.id)"
+                  [alt]="img.prompt"
+                  class="gallery-thumb"
+                  loading="lazy"
+                />
+                <div class="gallery-info">
+                  <p class="gallery-prompt">{{ img.prompt | slice:0:60 }}…</p>
+                  <div class="gallery-chips">
+                    <span class="meta-chip small">{{ img.style }}</span>
+                    <span class="meta-chip small">{{ img.level }}</span>
+                  </div>
+                </div>
+                <div class="gallery-actions">
+                  <button class="btn-icon" title="Télécharger" (click)="downloadImage(img)">⬇️</button>
+                  <button class="btn-icon danger" title="Supprimer" (click)="deleteImage(img.id)">🗑️</button>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+    </section>
+  </div>
+</div>

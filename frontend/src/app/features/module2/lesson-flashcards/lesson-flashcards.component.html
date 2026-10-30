@@ -1,0 +1,242 @@
+<div class="min-h-screen bg-kids-surface-soft py-8 px-4 sm:px-6 lg:px-8 font-body text-kids-dark">
+  <div class="max-w-3xl mx-auto space-y-8">
+
+    <!-- EN-TÊTE -->
+    <header class="bg-white rounded-3xl p-6 md:p-8 shadow-kids-card border-4 border-kids-primary-light flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+      <div class="absolute -top-10 -right-10 w-36 h-36 bg-kids-primary-light/40 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="absolute -bottom-10 -left-10 w-36 h-36 bg-kids-secondary-light/50 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="flex items-center gap-5 z-10">
+        <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-kids-primary to-sky-300 flex items-center justify-center text-4xl shadow-kids-soft border-4 border-white animate-bounce-soft">
+          📖
+        </div>
+        <div>
+          <h1 class="text-3xl md:text-4xl font-kids font-bold text-kids-dark tracking-tight">
+            Mes résumés magiques
+          </h1>
+          <p class="text-kids-dark-muted font-medium text-sm md:text-base mt-1">
+            Transforme ton cours en histoire et en flashcards
+          </p>
+        </div>
+      </div>
+
+      <a
+        [routerLink]="childId ? ['/home', childId] : ['/children']"
+        class="z-10 btn-kids-secondary text-sm py-2 px-4 hover:scale-105 active:scale-95 transition-transform"
+      >
+        🏠 Accueil
+      </a>
+    </header>
+
+    <!-- ÉTAPE 1 : COURS -->
+    <section class="bg-white rounded-3xl p-6 md:p-8 shadow-kids-card border-4 border-kids-primary-light">
+      <div class="flex items-center gap-4 pb-4 mb-6 border-b border-slate-100">
+        <div class="w-14 h-14 rounded-2xl bg-kids-primary-light flex items-center justify-center text-3xl">🎒</div>
+        <div>
+          <h2 class="text-2xl font-kids font-bold text-kids-dark">Mon cours</h2>
+          <p class="text-xs md:text-sm text-kids-dark-muted">Choisis un cours ou crée-en un pour tester</p>
+        </div>
+      </div>
+
+      <label for="courseId" class="block font-kids font-bold text-sm md:text-base text-kids-dark mb-1.5">
+        Choisis ton cours <span class="text-rose-500">*</span>
+      </label>
+      @if (coursesLoading()) {
+        <p class="rounded-2xl bg-kids-surface-soft p-4 text-kids-dark-muted">Chargement de tes cours…</p>
+      } @else if (courses().length) {
+        <select id="courseId" [value]="courseId" (change)="selectCourse($event)" class="w-full rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-4 py-3 text-base font-medium focus:outline-none focus:border-kids-primary focus:bg-white focus:ring-4 focus:ring-kids-primary/20">
+          @for (course of courses(); track course.id) {
+            <option [value]="course.id">{{ course.title }} · {{ course.subject }} · {{ course.grade_level }}</option>
+          }
+        </select>
+      } @else {
+        <p class="rounded-2xl bg-kids-surface-soft p-4 text-kids-dark-muted">Aucun cours enregistré pour le moment. Crée un cours test pour commencer.</p>
+      }
+      <div class="mt-4">
+        <button
+          type="button"
+          (click)="createCourse()"
+          [disabled]="loading()"
+          class="btn-kids-primary text-sm md:text-base py-2.5 px-5 hover:scale-105 active:scale-95 transition-transform duration-200 shadow-kids-button disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          ➕ Créer un cours test
+        </button>
+      </div>
+      @if (!indexed()) {
+        <p class="mt-4 rounded-2xl border-2 border-kids-secondary-dark/30 bg-kids-secondary-light/50 p-4 text-sm font-semibold text-kids-dark">
+          Crée un cours test ou saisis un numéro de cours existant, puis indexe ton PDF avant de générer.
+        </p>
+      } @else {
+        <p class="mt-4 rounded-2xl border-2 border-kids-success/40 bg-kids-success-light p-4 text-sm font-semibold text-kids-dark">
+          ✅ {{ indexedChunks() }} extraits de cours indexés. Tu peux générer ta leçon.
+        </p>
+      }
+    </section>
+
+    <!-- ÉTAPE 2 : PDF -->
+    <section class="bg-white rounded-3xl p-6 md:p-8 shadow-kids-card border-4 border-kids-primary-light">
+      <div class="flex items-center gap-4 pb-4 mb-6 border-b border-slate-100">
+        <div class="w-14 h-14 rounded-2xl bg-kids-secondary-light flex items-center justify-center text-3xl">📄</div>
+        <div>
+          <h2 class="text-2xl font-kids font-bold text-kids-dark">Ma leçon en PDF</h2>
+          <p class="text-xs md:text-sm text-kids-dark-muted">Ajoute la leçon de l'école pour que la magie opère</p>
+        </div>
+      </div>
+
+      <input
+        type="file"
+        accept="application/pdf"
+        (change)="onFile($event)"
+        class="block w-full rounded-2xl border-2 border-dashed border-kids-primary/40 bg-kids-surface-soft p-4 text-sm font-medium"
+      />
+      <div class="mt-4">
+        <button
+          type="button"
+          (click)="ingest()"
+          [disabled]="!file || loading() || courseId < 1"
+          class="btn-kids-secondary text-sm md:text-base py-2.5 px-5 hover:scale-105 active:scale-95 transition-transform duration-200 shadow-kids-button disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          📚 Indexer ma leçon
+        </button>
+      </div>
+    </section>
+
+    <!-- ÉTAPE 3 : GÉNÉRATION -->
+    <section class="bg-white rounded-3xl p-6 md:p-8 shadow-kids-card border-4 border-kids-primary-light">
+      <div class="flex items-center gap-4 pb-4 mb-6 border-b border-slate-100">
+        <div class="w-14 h-14 rounded-2xl bg-kids-success-light flex items-center justify-center text-3xl">✨</div>
+        <div>
+          <h2 class="text-2xl font-kids font-bold text-kids-dark">Je crée ma leçon magique</h2>
+          <p class="text-xs md:text-sm text-kids-dark-muted">Histoire, flashcards et mots expliqués simplement</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-[1fr_9rem] gap-4">
+        <div>
+          <label for="chapter" class="block font-kids font-bold text-sm md:text-base text-kids-dark mb-1.5">
+            Chapitre <span class="text-rose-500">*</span>
+          </label>
+          <input
+            id="chapter"
+            type="text"
+            [(ngModel)]="name"
+            class="w-full rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-4 py-3 text-base font-medium transition-all focus:outline-none focus:border-kids-primary focus:bg-white focus:ring-4 focus:ring-kids-primary/20"
+          />
+        </div>
+        <div>
+          <label for="age" class="block font-kids font-bold text-sm md:text-base text-kids-dark mb-1.5">
+            Âge <span class="text-rose-500">*</span>
+          </label>
+          <input
+            id="age"
+            type="number"
+            min="5"
+            max="14"
+            [(ngModel)]="age"
+            class="w-full rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-4 py-3 text-base font-medium transition-all focus:outline-none focus:border-kids-primary focus:bg-white focus:ring-4 focus:ring-kids-primary/20"
+          />
+        </div>
+      </div>
+
+      <button
+        type="button"
+        (click)="generate()"
+        [disabled]="loading() || !indexed()"
+        class="btn-kids-primary w-full mt-6 text-lg md:text-xl py-3.5 hover:scale-105 active:scale-95 transition-transform duration-200 shadow-kids-button disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        @if (loading()) {
+          <span class="inline-block animate-spin mr-2">⏳</span>
+          <span>La magie opère...</span>
+        } @else {
+          <span>🚀 Générer ma leçon</span>
+        }
+      </button>
+    </section>
+
+    <!-- MESSAGES -->
+    @if (message()) {
+      <div class="rounded-2xl p-4 flex items-center gap-3 shadow-lg bg-emerald-50 border-2 border-emerald-400 text-emerald-900">
+        <span class="text-2xl">🎉</span>
+        <span class="font-kids text-base md:text-lg font-medium">{{ message() }}</span>
+      </div>
+    }
+    @if (error()) {
+      <div class="rounded-2xl p-4 flex items-center gap-3 shadow-lg bg-rose-50 border-2 border-rose-400 text-rose-900">
+        <span class="text-2xl">⚠️</span>
+        <span class="font-kids text-base md:text-lg font-medium">{{ error() }}</span>
+      </div>
+    }
+
+    <!-- RÉSULTAT -->
+    @if (result(); as res) {
+      <!-- Histoire -->
+      <section class="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-100 rounded-3xl p-6 md:p-8 shadow-kids-card border-4 border-amber-300">
+        <h2 class="text-2xl font-kids font-bold text-kids-dark mb-3">📖 {{ res.topic.name }}</h2>
+        <p class="text-base md:text-lg font-medium text-kids-dark leading-relaxed">
+          {{ res.topic.summary_kid }}
+        </p>
+      </section>
+
+      <!-- Flashcards -->
+      <section class="bg-white rounded-3xl p-6 md:p-8 shadow-kids-card border-4 border-kids-primary-light">
+        <div class="flex items-center gap-4 pb-4 mb-6 border-b border-slate-100">
+          <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center text-3xl">🃏</div>
+          <div>
+            <h2 class="text-2xl font-kids font-bold text-kids-dark">Mes flashcards</h2>
+            <p class="text-xs md:text-sm text-kids-dark-muted">Clique sur une carte pour la retourner</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          @for (c of res.flashcards; track c.id) {
+            <button
+              type="button"
+              (click)="flip(c.id)"
+              class="min-h-32 rounded-3xl p-5 flex items-center justify-center text-center text-white font-kids text-lg font-bold shadow-kids-soft hover:scale-105 active:scale-95 transition-transform duration-200"
+              [class]="flipped().has(c.id) ? 'bg-kids-success' : 'bg-kids-primary'"
+            >
+              {{ flipped().has(c.id) ? c.answer : c.question }}
+            </button>
+          }
+        </div>
+      </section>
+
+      <!-- Glossaire -->
+      <section class="bg-white rounded-3xl p-6 md:p-8 shadow-kids-card border-4 border-kids-primary-light">
+        <div class="flex items-center gap-4 pb-4 mb-6 border-b border-slate-100">
+          <div class="w-14 h-14 rounded-2xl bg-sky-100 flex items-center justify-center text-3xl">🔤</div>
+          <div>
+            <h2 class="text-2xl font-kids font-bold text-kids-dark">Mots expliqués simplement</h2>
+            <p class="text-xs md:text-sm text-kids-dark-muted">Le petit dictionnaire de ta leçon</p>
+          </div>
+        </div>
+
+        <ul class="space-y-3">
+          @for (g of res.glossary; track g.id) {
+            <li class="font-medium text-kids-dark">
+              <span class="inline-flex items-center px-3 py-1 rounded-full bg-sky-100 text-sky-800 font-kids text-xs font-bold shadow-sm mr-2">
+                {{ g.word }}
+              </span>
+              {{ g.definition }}
+            </li>
+          }
+        </ul>
+      </section>
+
+      <!-- Sources RAG -->
+      @if (res.sources) {
+        <details class="bg-white rounded-3xl p-5 shadow-kids-card border-4 border-kids-primary-light">
+          <summary class="font-kids font-bold cursor-pointer">🔎 D'où vient l'info ? (sources du cours)</summary>
+          <div class="mt-3 space-y-2">
+            @for (s of res.sources; track s.id) {
+              <p class="text-xs md:text-sm text-kids-dark-muted">
+                <b>[{{ s.id }}]</b> pertinence {{ s.score }} : {{ s.extrait }}...
+              </p>
+            }
+          </div>
+        </details>
+      }
+    }
+
+  </div>
+</div>

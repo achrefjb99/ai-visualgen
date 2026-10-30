@@ -1,0 +1,74 @@
+{
+  "e18c22ad-2a7d-49a5-9950-d4f234e5b735": {
+    "id": "e18c22ad-2a7d-49a5-9950-d4f234e5b735",
+    "filename": "e18c22ad-2a7d-49a5-9950-d4f234e5b735.png",
+    "prompt": "Happy cartoon children planting trees and recycling, colorful illustration about protecting the environment.",
+    "style": "storybook",
+    "level": "primary",
+    "created_at": "2026-10-25T18:33:00.325245",
+    "url": "/api/v1/visualgen/images/e18c22ad-2a7d-49a5-9950-d4f234e5b735"
+  },
+  "13c1a5fb-41dd-4e1e-b0cc-d3235d0230b8": {
+    "id": "13c1a5fb-41dd-4e1e-b0cc-d3235d0230b8",
+    "filename": "13c1a5fb-41dd-4e1e-b0cc-d3235d0230b8.png",
+    "prompt": "Create a colorful cartoon showing the water cycle: sun heating the ocean, water evaporating, clouds forming, and rain falling over green mountains.",
+    "style": "diagram",
+    "level": "primary",
+    "created_at": "2026-10-26T09:07:05.970337",
+    "url": "/api/v1/visualgen/images/13c1a5fb-41dd-4e1e-b0cc-d3235d0230b8"
+  },
+  "180ad656-0297-4027-9b10-3d41fb10d0d2": {
+    "id": "180ad656-0297-4027-9b10-3d41fb10d0d2",
+    "filename": "180ad656-0297-4027-9b10-3d41fb10d0d2.png",
+    "prompt": "Colorful cross-section diagram of a volcano showing magma, crater, and lava flow, educational and child-friendly.",
+    "style": "storybook",
+    "level": "middle",
+    "created_at": "2026-10-26T09:07:59.417180",
+    "url": "/api/v1/visualgen/images/180ad656-0297-4027-9b10-3d41fb10d0d2"
+  },
+  "18623e26-f53a-449a-b79a-ee2330cf50cb": {
+    "id": "18623e26-f53a-449a-b79a-ee2330cf50cb",
+    "filename": "18623e26-f53a-449a-b79a-ee2330cf50cb.png",
+    "prompt": "les nouvelle technologie ",
+    "style": "diagram",
+    "level": "middle",
+    "created_at": "2026-10-26T09:12:05.518022",
+    "url": "/api/v1/visualgen/images/18623e26-f53a-449a-b79a-ee2330cf50cb"
+  },
+  "b32c33ec-b90c-4e6f-b3e1-943b5acd043c": {
+    "id": "b32c33ec-b90c-4e6f-b3e1-943b5acd043c",
+    "filename": "b32c33ec-b90c-4e6f-b3e1-943b5acd043c.png",
+    "prompt": "A clean educational illustration of new technologies: a laptop, smartphone, robot and Wi-Fi symbol, colorful child-friendly textbook style, simple labels, white background",
+    "style": "cartoon",
+    "level": "primary",
+    "created_at": "2026-10-26T09:22:12.701817",
+    "url": "/api/v1/visualgen/images/b32c33ec-b90c-4e6f-b3e1-943b5acd043c"
+  },
+  "fb5a80eb-6887-485b-ac29-2701f899f1cb": {
+    "id": "fb5a80eb-6887-485b-ac29-2701f899f1cb",
+    "filename": "fb5a80eb-6887-485b-ac29-2701f899f1cb.png",
+    "prompt": "A colorful educational illustration of the solar system with the Sun and planets, child-friendly textbook style, simple labels, clean background\"",
+    "style": "diagram",
+    "level": "middle",
+    "created_at": "2026-10-26T09:23:33.984769",
+    "url": "/api/v1/visualgen/images/fb5a80eb-6887-485b-ac29-2701f899f1cb"
+  },
+  "d2677251-667c-4987-a224-6d6744b5a2f3": {
+    "id": "d2677251-667c-4987-a224-6d6744b5a2f3",
+    "filename": "d2677251-667c-4987-a224-6d6744b5a2f3.png",
+    "prompt": "Fun cartoon showing fractions using pizza slices, apples, and chocolate bars, colorful and easy to understand for children.",
+    "style": "watercolor",
+    "level": "primary",
+    "created_at": "2026-10-26T10:34:56.198428",
+    "url": "/api/v1/visualgen/images/d2677251-667c-4987-a224-6d6744b5a2f3"
+  },
+  "e61e6444-7e18-4629-bb2b-dcf9eeb8db63": {
+    "id": "e61e6444-7e18-4629-bb2b-dcf9eeb8db63",
+    "filename": "e61e6444-7e18-4629-bb2b-dcf9eeb8db63.png",
+    "prompt": "Simple educational diagram of a food chain in a forest: grass, rabbit, fox, with arrows, cartoon style.",
+    "style": "cartoon",
+    "level": "primary",
+    "created_at": "2026-10-26T13:57:52.351089",
+    "url": "/api/v1/visualgen/images/e61e6444-7e18-4629-bb2b-dcf9eeb8db63"
+  }
+}

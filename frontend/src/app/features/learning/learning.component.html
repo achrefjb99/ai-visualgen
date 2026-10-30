@@ -1,0 +1,134 @@
+<div class="min-h-screen bg-kids-surface-soft px-4 py-8 font-body text-kids-dark sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-4xl space-y-8">
+    <header class="flex flex-col items-center justify-between gap-5 rounded-3xl border-4 border-kids-primary-light bg-white p-6 shadow-kids-card md:flex-row md:p-8">
+      <div>
+        <span class="text-4xl">{{ mode() === 'tutor' ? '🤖' : mode() === 'quiz' ? '🎮' : mode() === 'progress' ? '📊' : '🎨' }}</span>
+        <h1 class="font-kids text-3xl font-bold">{{ mode() === 'tutor' ? 'Mon Buddy' : mode() === 'quiz' ? 'Quiz magique' : mode() === 'progress' ? 'Mes super-pouvoirs' : 'Atelier visuel' }}</h1>
+        <p class="text-kids-dark-muted">{{ mode() === 'progress' ? 'Tes progrès et les sujets à revoir' : 'Apprends avec les leçons indexées de ton cours' }}</p>
+      </div>
+      <a routerLink="/children" class="btn-kids-secondary text-sm">🏠 Accueil</a>
+    </header>
+
+    <nav class="flex flex-wrap gap-3 rounded-3xl border-4 border-kids-primary-light bg-white p-4 shadow-kids-card">
+      <a routerLink="/tutor" [queryParams]="childId ? {child: childId} : null" class="btn-kids-primary text-sm">🤖 Buddy</a>
+      <a routerLink="/quiz" [queryParams]="childId ? {child: childId} : null" class="btn-kids-secondary text-sm">🎮 Quiz</a>
+      <a routerLink="/progress" [queryParams]="childId ? {child: childId} : null" class="btn-kids-secondary text-sm">📊 Progrès</a>
+      <a routerLink="/visuals" [queryParams]="childId ? {child: childId} : null" class="btn-kids-secondary text-sm">🎨 Visuels</a>
+    </nav>
+
+    <section class="space-y-5 rounded-3xl border-4 border-kids-primary-light bg-white p-6 shadow-kids-card md:p-8">
+      @if (mode() !== 'progress') {
+        <div>
+          <label for="courseId" class="block font-kids font-bold">Cours</label>
+          <select id="courseId" [value]="courseId" (change)="selectCourse($event)" class="mt-2 w-full rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-4 py-3 focus:border-kids-primary focus:outline-none">
+            @for (course of courses(); track course.id) { <option [value]="course.id">{{ course.title }} · {{ course.subject }} · {{ course.grade_level }}</option> }
+          </select>
+        </div>
+      }
+
+      @if (mode() === 'tutor') {
+        <label for="question" class="block font-kids font-bold">Ta question</label>
+        <textarea id="question" [(ngModel)]="message" rows="3" maxlength="2000" placeholder="Demande-moi quelque chose sur ta leçon…" class="w-full rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-4 py-3 focus:border-kids-primary focus:outline-none"></textarea>
+        <div class="flex flex-wrap items-center gap-3">
+          <button class="btn-kids-primary" (click)="ask()" [disabled]="loading()">{{ loading() ? 'Je réfléchis…' : '✨ Demander' }}</button>
+          <button class="btn-kids-secondary" (click)="listen()">🎙️ Parler</button>
+          <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="hint" /> Donne-moi un indice</label>
+          <select [(ngModel)]="analogy" class="rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-3 py-2">
+            <option value="">Sans thème</option><option>Minecraft</option><option>Superheroes</option><option>LEGO</option><option>Space</option>
+          </select>
+        </div>
+        @if (answer(); as reply) {
+          <article class="rounded-3xl border-2 border-kids-primary-light bg-kids-surface-card p-6">
+            <span class="mb-3 inline-flex rounded-full px-3 py-1 text-xs font-bold" [class.bg-kids-success-light]="reply.generation_mode === 'ai'" [class.bg-kids-secondary-light]="reply.generation_mode !== 'ai'">{{ reply.generation_mode === 'ai' ? '✨ Buddy IA' : '📚 Mode cours local' }}</span>
+            <p class="whitespace-pre-line leading-relaxed">{{ reply.answer }}</p>
+            <button class="btn-kids-secondary mt-4" (click)="speak(reply.answer)">🔊 Écouter</button>
+            @if (reply.sources.length) {
+              <div class="mt-4 border-t pt-3"><b>📚 Sources de ta leçon</b>
+                @for (source of reply.sources; track source.id) { <p class="mt-2 text-sm">{{ source.label }} · {{ source.text }}</p> }
+              </div>
+            }
+            @if (reply.badges.length) { <p class="mt-3 font-kids font-bold">🏅 {{ reply.badges.join(', ') }}</p> }
+          </article>
+        }
+      } @else if (mode() === 'quiz') {
+        <div>
+          <label for="quizTopic" class="block font-kids font-bold">Sujet de ta leçon</label>
+          <input id="quizTopic" [(ngModel)]="topic" placeholder="Ex. Le cycle de l'eau" class="mt-2 w-full rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-4 py-3 focus:border-kids-primary focus:outline-none" />
+        </div>
+        <label class="block font-kids font-bold">Difficulté</label>
+        <select [(ngModel)]="difficulty" class="rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-4 py-3"><option value="easy">Facile</option><option value="medium">Moyen</option><option value="hard">Défi</option></select>
+        <button class="btn-kids-primary" (click)="makeQuiz()" [disabled]="loading()">🎲 Préparer mon quiz</button>
+        @if (quizData(); as quiz) {
+          <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold" [class.bg-kids-success-light]="quiz.generation_mode === 'ai'" [class.bg-kids-secondary-light]="quiz.generation_mode !== 'ai'">{{ quiz.generation_mode === 'ai' ? '✨ Quiz IA' : '📚 Quiz local' }}</span>
+          @for (question of quiz.questions; let i = $index; track i) {
+            <div class="space-y-3 rounded-3xl border-2 border-kids-primary-light bg-kids-surface-card p-5">
+              <h2 class="font-kids text-xl font-bold">{{ i + 1 }}. {{ question.question }}</h2>
+              @if (question.options.length) {
+                @for (option of question.options; track option) { <label class="block"><input type="radio" [name]="'q' + i" [value]="option" [(ngModel)]="answers[i]" /> {{ option }}</label> }
+              } @else {
+                <input [(ngModel)]="answers[i]" placeholder="Ta réponse" class="w-full rounded-2xl border-2 border-kids-primary/30 bg-white px-4 py-2" />
+              }
+            </div>
+          }
+          <button class="btn-kids-secondary" (click)="submitQuiz()" [disabled]="loading()">✅ Vérifier mes réponses</button>
+        }
+        @if (grade(); as result) {
+          <div class="space-y-2 rounded-3xl border-2 border-kids-success bg-kids-success-light p-5">
+            <h2 class="font-kids text-2xl font-bold">⭐ {{ result.points }} points</h2>
+            @for (row of result.results; track $index) { <p>{{ row.correct ? '✅ Bravo !' : '💡 Réponse : ' + row.answer }} {{ row.feedback }}</p> }
+            @for (booster of result.boosters; track booster) { <p class="font-semibold">🧩 {{ booster }}</p> }
+            @for (badge of result.badges; track badge) { <span class="inline-flex rounded-full bg-kids-secondary-light px-3 py-1 font-kids text-xs font-bold">🏅 {{ badge }}</span> }
+          </div>
+        }
+      } @else if (mode() === 'visual') {
+        <div>
+          <label for="visualTopic" class="block font-kids font-bold">Sujet de ta leçon</label>
+          <input id="visualTopic" [(ngModel)]="topic" placeholder="Ex. Le cycle de l'eau" class="mt-2 w-full rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-4 py-3 focus:border-kids-primary focus:outline-none" />
+        </div>
+        <button class="btn-kids-primary" (click)="makeVisual()" [disabled]="loading()">🪄 Créer mon schéma</button>
+        @if (visualData(); as visual) {
+          <article class="rounded-3xl border-2 border-kids-primary-light bg-kids-surface-card p-6">
+            <span class="inline-flex rounded-full px-3 py-1 text-xs font-bold" [class.bg-kids-success-light]="visual.generation_mode === 'ai'" [class.bg-kids-secondary-light]="visual.generation_mode !== 'ai'">{{ visual.generation_mode === 'ai' ? '✨ Créé avec Buddy IA' : '📚 Créé depuis ton cours' }}</span>
+            <h2 class="font-kids text-2xl font-bold">🧠 {{ visual.title }}</h2>
+            <ol class="mt-4 space-y-3">@for (step of visual.steps; let i = $index; track i) { <li class="rounded-2xl border-2 border-kids-primary-light bg-white p-4"><b>Étape {{ i + 1 }} · {{ step.label }}</b><p>{{ step.detail }}</p></li> }</ol>
+            <h3 class="mt-5 font-kids text-xl font-bold">Carte d'idées</h3>
+            @for (node of visual.mind_map; track node.label) { <div class="mt-2 rounded-2xl border-2 border-kids-primary-light bg-white p-4"><b>{{ node.label }}</b><p>{{ node.children.join(' · ') }}</p></div> }
+            @for (source of visual.sources; track source.id) { <p class="mt-3 text-xs text-kids-dark-muted">Source : {{ source.label }}</p> }
+          </article>
+        }
+        <h2 class="mt-4 font-kids text-2xl font-bold">Galerie de révision</h2>
+        @if (galleryData().length) {
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            @for (item of galleryData(); track item.id) {
+              <article class="rounded-3xl border-2 border-kids-primary-light bg-kids-surface-card p-5">
+                <h3 class="font-kids text-xl font-bold">{{ item.title }}</h3><p class="text-sm text-kids-dark-muted">{{ item.topic }} · {{ item.created_at | date:'mediumDate' }}</p>
+                <ol class="mt-3 space-y-2">@for (step of item.content.steps; let i = $index; track i) { <li class="rounded-xl bg-white p-3"><b>{{ i + 1 }}. {{ step.label }}</b><p>{{ step.detail }}</p></li> }</ol>
+              </article>
+            }
+          </div>
+        } @else { <p class="rounded-2xl bg-kids-surface-card p-4 text-kids-dark-muted">Les schémas générés apparaîtront ici pour tes révisions.</p> }
+      } @else {
+        <div class="flex flex-wrap items-end gap-4">
+          <div><label for="progressCourse" class="block font-kids font-bold">Cours</label><select id="progressCourse" [value]="courseId" (change)="selectCourse($event)" class="mt-2 w-full rounded-2xl border-2 border-kids-primary/30 bg-kids-surface-soft px-4 py-3">@for (course of courses(); track course.id) { <option [value]="course.id">{{ course.title }} · {{ course.subject }}</option> }</select></div>
+          <button class="btn-kids-primary" (click)="loadProgress()">Actualiser</button>
+        </div>
+        @if (progressData(); as report) {
+          <aside class="rounded-3xl border-2 border-kids-secondary-dark/20 bg-kids-secondary-light/50 p-5"><p class="font-kids text-xl font-bold">🌟 {{ report.encouragement }}</p><p class="mt-1">{{ report.recommendation }}</p></aside>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="rounded-2xl bg-kids-surface-card p-5"><p class="text-sm text-kids-dark-muted">Précision</p><p class="font-kids text-3xl font-bold">{{ report.accuracy }}%</p></div>
+            <div class="rounded-2xl bg-kids-surface-card p-5"><p class="text-sm text-kids-dark-muted">Points gagnés</p><p class="font-kids text-3xl font-bold">{{ report.points }}</p></div>
+            <div class="rounded-2xl bg-kids-surface-card p-5"><p class="text-sm text-kids-dark-muted">Quiz terminés</p><p class="font-kids text-3xl font-bold">{{ report.attempts }}</p></div>
+          </div>
+          <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <article class="rounded-3xl border-2 border-kids-success bg-kids-success-light p-5"><h2 class="font-kids text-xl font-bold">💪 Super-pouvoirs</h2>@for (topic of report.superpowers; track topic.topic) { <p>{{ topic.topic }} · {{ topic.accuracy }}%</p> }@if (!report.superpowers.length) { <p class="mt-2">Continue à t’entraîner pour débloquer tes super-pouvoirs.</p> }</article>
+            <article class="rounded-3xl border-2 border-kids-secondary-dark/30 bg-kids-secondary-light/50 p-5"><h2 class="font-kids text-xl font-bold">🧩 À renforcer</h2>@for (topic of report.needs_practice; track topic.topic) { <p>{{ topic.topic }} · {{ topic.accuracy }}%</p> }@if (!report.needs_practice.length) { <p class="mt-2">Aucun sujet à renforcer pour le moment.</p> }</article>
+          </div>
+          <h2 class="font-kids text-xl font-bold">Quiz récents</h2>
+          @for (attempt of report.recent_attempts; track attempt.id) { <p class="rounded-2xl bg-kids-surface-card p-4">{{ attempt.topic }} · {{ attempt.correct_count }}/{{ attempt.question_count }} · {{ attempt.points }} points</p> }
+        } @else { <p class="rounded-2xl bg-kids-surface-card p-4">Aucun résultat disponible pour ce cours ou cet enfant pour le moment.</p> }
+      }
+
+      @if (error()) { <p class="rounded-2xl border-2 border-rose-400 bg-rose-50 p-4 text-rose-900">{{ error() }}</p> }
+    </section>
+  </div>
+</div>

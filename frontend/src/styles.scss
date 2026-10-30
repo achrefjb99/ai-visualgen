@@ -1,0 +1,80 @@
+/* Import des polices Google Fonts adaptées aux enfants : Fredoka (titres ludiques) et Nunito (lecture fluide) */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply font-body text-kids-dark bg-kids-surface-soft min-h-screen antialiased select-none;
+    background-image: radial-gradient(circle at 8% 8%, rgba(186, 230, 253, .34), transparent 25rem),
+                      radial-gradient(circle at 92% 18%, rgba(254, 240, 138, .24), transparent 22rem);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-kids font-bold tracking-wide;
+  }
+
+  :focus-visible {
+    outline: 3px solid #38bdf8;
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: #bae6fd;
+    color: #172554;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer components {
+  /* Boutons rebondissants "Bouncy Buttons" 3D avec micro-interaction click */
+  .btn-kids-primary {
+    @apply bg-kids-primary text-white font-kids font-bold px-6 py-3 rounded-full
+           shadow-kids-button border-2 border-kids-primary-dark transition-all duration-150
+           active:translate-y-1 active:shadow-none hover:brightness-105 inline-flex items-center justify-center gap-2 cursor-pointer;
+  }
+
+  .btn-kids-secondary {
+    @apply bg-kids-secondary text-kids-dark font-kids font-bold px-6 py-3 rounded-full
+           shadow-kids-button-secondary border-2 border-kids-secondary-dark transition-all duration-150
+           active:translate-y-1 active:shadow-none hover:brightness-105 inline-flex items-center justify-center gap-2 cursor-pointer;
+  }
+
+  .btn-kids-accent {
+    @apply bg-kids-accent-coral text-white font-kids font-bold px-6 py-3 rounded-full
+           shadow-kids-button-accent border-2 border-rose-600 transition-all duration-150
+           active:translate-y-1 active:shadow-none hover:brightness-105 inline-flex items-center justify-center gap-2 cursor-pointer;
+  }
+
+  .btn-kids-success {
+    @apply bg-kids-success text-white font-kids font-bold px-6 py-3 rounded-full
+           shadow-kids-button-success border-2 border-kids-success-dark transition-all duration-150
+           active:translate-y-1 active:shadow-none hover:brightness-105 inline-flex items-center justify-center gap-2 cursor-pointer;
+  }
+
+  /* Cartes ludo-éducatives avec effet flottant */
+  .card-kids {
+    @apply bg-white rounded-3xl p-6 shadow-kids-card border-4 border-kids-primary-light
+           transition-all duration-300 hover:-translate-y-1 hover:shadow-kids-floating;
+  }
+
+  /* Badge de niveau ou de matière */
+  .badge-kids {
+    @apply px-4 py-1.5 rounded-full font-kids text-sm font-semibold tracking-wide inline-flex items-center gap-1.5;
+  }
+}

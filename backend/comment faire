@@ -1,0 +1,3 @@
+Lancer le backend : uvicorn app.main:app --reload (port 8000)
+Lancer le front : cd edugenius-ai/edugenius-ai/frontend && npm start
+Se connecter (enfant requis par childRequiredGuard), puis naviguer vers http://localhost:4200/visualgen?child=<id>

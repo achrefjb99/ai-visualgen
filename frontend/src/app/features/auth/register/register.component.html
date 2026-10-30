@@ -1,0 +1,222 @@
+<div class="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+  <div class="w-full max-w-lg">
+    <!-- Carte ludique d'inscription -->
+    <div class="relative overflow-hidden rounded-3xl border-4 border-kids-primary-light bg-white p-6 shadow-kids-card sm:p-9">
+      <!-- Bulles décoratives en arrière-plan -->
+      <div class="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-kids-primary-light/40 blur-xl"></div>
+      <div class="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-kids-secondary-light/50 blur-xl"></div>
+
+      <!-- En-tête -->
+      <div class="relative z-10 text-center">
+        <div class="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-tr from-kids-primary to-sky-300 text-4xl shadow-kids-soft border-4 border-white animate-bounce">
+          🎒
+        </div>
+        <h1 class="mt-4 font-kids text-3xl font-bold tracking-tight text-kids-dark sm:text-4xl">
+          Créer un compte
+        </h1>
+        <p class="mt-1 font-body text-sm font-medium text-kids-dark-muted">
+          Rejoins l’aventure EduGenius AI pour accompagner tes enfants ou tes élèves ! ✨
+        </p>
+      </div>
+
+      <!-- Message d'erreur -->
+      @if (errorMessage(); as msg) {
+        <div
+          class="relative z-10 mt-5 flex items-center gap-2.5 rounded-2xl border-2 border-rose-300 bg-rose-50 p-4 text-sm font-bold text-rose-800 animate-in fade-in"
+          role="alert"
+        >
+          <span class="text-xl">⚠️</span>
+          <span>{{ msg }}</span>
+        </div>
+      }
+
+      <!-- Formulaire -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="relative z-10 mt-6 space-y-5">
+        <!-- 1. Sélection du Rôle avec Cartes Cliquables -->
+        <div>
+          <label class="block font-kids text-sm font-bold text-kids-dark mb-2">
+            Je m'inscris en tant que :
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Option Parent -->
+            <button
+              type="button"
+              (click)="selectRole(userRoles.PARENT)"
+              class="flex flex-col items-center gap-1.5 rounded-2xl border-4 p-4 text-center transition-all duration-150"
+              [ngClass]="
+                registerForm.get('role')?.value === userRoles.PARENT
+                  ? 'border-amber-400 bg-amber-50 shadow-md ring-4 ring-amber-300/40 scale-102'
+                  : 'border-slate-200 bg-slate-50 opacity-80 hover:opacity-100 hover:border-slate-300'
+              "
+            >
+              <span class="text-3xl">👨‍👩‍👧</span>
+              <span class="font-kids text-sm font-bold text-kids-dark">Parent</span>
+              <span class="text-[11px] font-semibold text-kids-dark-muted">Superviser mes enfants</span>
+            </button>
+
+            <!-- Option Enseignant -->
+            <button
+              type="button"
+              (click)="selectRole(userRoles.TEACHER)"
+              class="flex flex-col items-center gap-1.5 rounded-2xl border-4 p-4 text-center transition-all duration-150"
+              [ngClass]="
+                registerForm.get('role')?.value === userRoles.TEACHER
+                  ? 'border-sky-400 bg-sky-50 shadow-md ring-4 ring-sky-300/40 scale-102'
+                  : 'border-slate-200 bg-slate-50 opacity-80 hover:opacity-100 hover:border-slate-300'
+              "
+            >
+              <span class="text-3xl">🧑‍🏫</span>
+              <span class="font-kids text-sm font-bold text-kids-dark">Enseignant</span>
+              <span class="text-[11px] font-semibold text-kids-dark-muted">Gérer cours & flashcards</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Nom d'utilisateur -->
+        <div>
+          <label for="username" class="block font-kids text-sm font-bold text-kids-dark">
+            Nom d’utilisateur *
+          </label>
+          <div class="relative mt-1">
+            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-lg">
+              👤
+            </span>
+            <input
+              id="username"
+              type="text"
+              formControlName="username"
+              placeholder="Ex: maman_sophie ou prof_martin"
+              class="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 py-3 pl-11 pr-4 font-body text-base font-semibold text-kids-dark transition-colors placeholder:text-slate-400 focus:border-kids-primary focus:bg-white focus:outline-none"
+            />
+          </div>
+          @if (registerForm.get('username')?.touched && registerForm.get('username')?.invalid) {
+            <p class="mt-1 font-body text-xs font-bold text-rose-600">
+              Le nom d’utilisateur est requis (3 à 50 caractères, lettres, chiffres ou tirets).
+            </p>
+          }
+        </div>
+
+        <!-- 3. Adresse Email -->
+        <div>
+          <label for="email" class="block font-kids text-sm font-bold text-kids-dark">
+            Adresse email *
+          </label>
+          <div class="relative mt-1">
+            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-lg">
+              ✉️
+            </span>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="Ex: parent@exemple.fr"
+              class="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 py-3 pl-11 pr-4 font-body text-base font-semibold text-kids-dark transition-colors placeholder:text-slate-400 focus:border-kids-primary focus:bg-white focus:outline-none"
+            />
+          </div>
+          @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
+            <p class="mt-1 font-body text-xs font-bold text-rose-600">
+              Veuillez saisir une adresse email valide.
+            </p>
+          }
+        </div>
+
+        <!-- 4. Mot de passe -->
+        <div>
+          <label for="password" class="block font-kids text-sm font-bold text-kids-dark">
+            Mot de passe *
+          </label>
+          <div class="relative mt-1">
+            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-lg">
+              🔑
+            </span>
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Minimum 6 caractères"
+              class="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 py-3 pl-11 pr-11 font-body text-base font-semibold text-kids-dark transition-colors placeholder:text-slate-400 focus:border-kids-primary focus:bg-white focus:outline-none"
+            />
+            <button
+              type="button"
+              (click)="toggleShowPassword()"
+              class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-lg text-slate-400 hover:text-slate-600"
+              tabindex="-1"
+              aria-label="Afficher ou masquer le mot de passe"
+            >
+              {{ showPassword() ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
+            <p class="mt-1 font-body text-xs font-bold text-rose-600">
+              Le mot de passe doit comporter au moins 6 caractères.
+            </p>
+          }
+        </div>
+
+        <!-- 5. Confirmation du mot de passe -->
+        <div>
+          <label for="confirmPassword" class="block font-kids text-sm font-bold text-kids-dark">
+            Confirme ton mot de passe *
+          </label>
+          <div class="relative mt-1">
+            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-lg">
+              🔒
+            </span>
+            <input
+              id="confirmPassword"
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="Tape à nouveau ton mot de passe"
+              class="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 py-3 pl-11 pr-11 font-body text-base font-semibold text-kids-dark transition-colors placeholder:text-slate-400 focus:border-kids-primary focus:bg-white focus:outline-none"
+            />
+            <button
+              type="button"
+              (click)="toggleShowConfirmPassword()"
+              class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-lg text-slate-400 hover:text-slate-600"
+              tabindex="-1"
+              aria-label="Afficher ou masquer la confirmation"
+            >
+              {{ showConfirmPassword() ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          @if (
+            registerForm.get('confirmPassword')?.touched &&
+            registerForm.hasError('passwordMismatch')
+          ) {
+            <p class="mt-1 font-body text-xs font-bold text-rose-600">
+              Les deux mots de passe ne correspondent pas.
+            </p>
+          }
+        </div>
+
+        <!-- Bouton d'action rebondissant -->
+        <button
+          type="submit"
+          [disabled]="isLoading() || registerForm.invalid"
+          class="btn-kids-primary min-h-12 w-full text-base shadow-kids-button hover:scale-102 active:scale-98 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (isLoading()) {
+            <span class="animate-spin text-lg">⏳</span>
+            <span>Création du compte...</span>
+          } @else {
+            <span>🚀 Créer mon compte et commencer</span>
+          }
+        </button>
+      </form>
+
+      <!-- Lien vers la connexion -->
+      <div class="relative z-10 mt-6 border-t-2 border-slate-100 pt-5 text-center">
+        <p class="font-body text-sm font-medium text-kids-dark-muted">
+          Tu as déjà un compte ?
+        </p>
+        <a
+          routerLink="/login"
+          class="mt-1.5 inline-flex items-center gap-1.5 font-kids text-sm font-bold text-kids-primary-dark hover:underline"
+        >
+          <span>🔐 Connecte-toi ici</span>
+          <span>→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

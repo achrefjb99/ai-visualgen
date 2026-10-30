@@ -1,0 +1,457 @@
+<div class="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 font-body text-slate-800">
+  <div class="max-w-7xl mx-auto space-y-8">
+
+    <!-- EN-TÊTE SOBRE ET PROFESSIONNEL -->
+    <header class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="flex items-start sm:items-center gap-4">
+        <div class="w-14 h-14 rounded-xl bg-slate-900 text-white flex items-center justify-center text-2xl shadow-sm">
+          🧑‍🏫
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Espace Enseignant
+            </h1>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-100 text-sky-800">
+              Module 2 · RAG
+            </span>
+          </div>
+          <p class="text-sm sm:text-base text-slate-500 mt-1">
+            Gestion de vos supports de cours et génération assistée par IA pour vos élèves
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 self-start md:self-center border-t md:border-t-0 pt-4 md:pt-0 border-slate-100">
+        <div class="text-right hidden sm:block">
+          <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Connecté en tant que</p>
+          <p class="text-sm font-semibold text-slate-700">
+            {{ authService.currentUser()?.username }}
+          </p>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm">
+          {{ authService.currentUser()?.username?.substring(0, 2)?.toUpperCase() }}
+        </div>
+      </div>
+    </header>
+
+    <!-- ALERTES ET NOTIFICATIONS -->
+    @if (successMessage()) {
+      <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 flex items-center justify-between gap-3 shadow-sm animate-fade-in">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg">✅</span>
+          <span class="font-medium">{{ successMessage() }}</span>
+        </div>
+        <button
+          type="button"
+          (click)="successMessage.set('')"
+          class="text-emerald-600 hover:text-emerald-900 text-lg leading-none"
+          aria-label="Fermer"
+        >
+          &times;
+        </button>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800 flex items-center justify-between gap-3 shadow-sm animate-fade-in">
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg">⚠️</span>
+          <span class="font-medium">{{ errorMessage() }}</span>
+        </div>
+        <button
+          type="button"
+          (click)="errorMessage.set('')"
+          class="text-rose-600 hover:text-rose-900 text-lg leading-none"
+          aria-label="Fermer"
+        >
+          &times;
+        </button>
+      </div>
+    }
+
+    <!-- FORMULAIRE D'UPLOAD PDF (MODULE 2) -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+      <div class="flex items-center gap-3 pb-4 mb-6 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-xl font-bold">
+          📄
+        </div>
+        <div>
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+            Publier un nouveau support de cours (PDF)
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500">
+            Téléversez la leçon au format PDF. Le système indexe le document et génère le résumé adapté à l'âge.
+          </p>
+        </div>
+      </div>
+
+      <form [formGroup]="courseForm" (ngSubmit)="onSubmitCourse()" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Titre du cours -->
+          <div class="md:col-span-2">
+            <label for="title" class="block text-sm font-semibold text-slate-700 mb-1.5">
+              Titre du cours / Leçon <span class="text-rose-500">*</span>
+            </label>
+            <input
+              id="title"
+              type="text"
+              formControlName="title"
+              placeholder="Ex: Le cycle de l'eau et les états de la matière"
+              class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+            />
+            @if (courseForm.get('title')?.touched && courseForm.get('title')?.invalid) {
+              <p class="mt-1 text-xs text-rose-600">
+                Le titre est obligatoire (minimum 3 caractères).
+              </p>
+            }
+          </div>
+
+          <!-- Matière -->
+          <div>
+            <label for="subject" class="block text-sm font-semibold text-slate-700 mb-1.5">
+              Matière <span class="text-rose-500">*</span>
+            </label>
+            <select
+              id="subject"
+              formControlName="subject"
+              class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+            >
+              @for (subj of availableSubjects; track subj) {
+                <option [value]="subj">{{ subj }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Niveau scolaire -->
+          <div>
+            <label for="grade_level" class="block text-sm font-semibold text-slate-700 mb-1.5">
+              Niveau scolaire ciblé <span class="text-rose-500">*</span>
+            </label>
+            <select
+              id="grade_level"
+              formControlName="grade_level"
+              class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+            >
+              @for (grade of availableGrades; track grade) {
+                <option [value]="grade">{{ grade }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Description succincte / Objectifs (Optionnel) -->
+          <div class="md:col-span-2">
+            <label for="description" class="block text-sm font-semibold text-slate-700 mb-1.5">
+              Objectifs pédagogiques ou remarques (facultatif)
+            </label>
+            <input
+              id="description"
+              type="text"
+              formControlName="description"
+              placeholder="Ex: Découverte de l'évaporation et de la condensation"
+              class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all"
+            />
+          </div>
+        </div>
+
+        <!-- ZONE D'UPLOAD FICHIER PDF -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            Document PDF de cours <span class="text-rose-500">*</span>
+          </label>
+
+          @if (!selectedFile()) {
+            <label
+              for="pdfFileInput"
+              class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-slate-300 hover:border-sky-400 bg-slate-50 hover:bg-sky-50/40 rounded-xl cursor-pointer transition-colors p-4"
+            >
+              <div class="flex flex-col items-center justify-center text-center">
+                <span class="text-3xl mb-1 text-slate-400">📥</span>
+                <p class="text-sm font-semibold text-slate-700">
+                  Cliquez pour sélectionner votre fichier PDF de cours
+                </p>
+                <p class="text-xs text-slate-500 mt-1">
+                  Format accepté : .pdf (cours tapé ou exporté numériquement)
+                </p>
+              </div>
+              <input
+                id="pdfFileInput"
+                type="file"
+                accept="application/pdf"
+                (change)="onFileSelected($event)"
+                class="hidden"
+              />
+            </label>
+          } @else {
+            <div class="flex items-center justify-between p-4 bg-sky-50 border border-sky-200 rounded-xl">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-sky-600 text-white flex items-center justify-center text-lg font-bold">
+                  PDF
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-slate-800 break-all">
+                    {{ selectedFileName() }}
+                  </p>
+                  <p class="text-xs text-slate-500">
+                    Taille du fichier : {{ selectedFileSize() }}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                (click)="clearSelectedFile()"
+                [disabled]="isUploading()"
+                class="text-xs font-semibold text-rose-600 hover:text-rose-800 px-3 py-1.5 rounded-lg hover:bg-rose-50 transition-colors disabled:opacity-50"
+              >
+                Changer de fichier
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- BOUTON DE SOUMISSION -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100">
+          <div class="text-xs text-slate-500 flex items-center gap-1.5">
+            <span>ℹ️</span>
+            <span>Le cours sera automatiquement rattaché à votre profil enseignant.</span>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="isUploading() || courseForm.invalid || !selectedFile()"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-sm transition-all hover:shadow hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            @if (isUploading()) {
+              <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+              <span>{{ uploadStep() || 'Traitement en cours...' }}</span>
+            } @else {
+              <span>🚀 Publier et indexer le cours</span>
+            }
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- LISTE DES COURS / DOCUMENTS DÉJÀ PUBLIÉS -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <span>📚 Vos supports de cours publiés</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-200 text-slate-800">
+              {{ courses().length }}
+            </span>
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500">
+            Documents indexés et prêts pour les révisions de vos élèves
+          </p>
+        </div>
+
+        <!-- FILTRES ET RECHERCHE -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Recherche textuelle -->
+          <div class="relative">
+            <input
+              type="text"
+              [value]="searchFilter()"
+              (input)="searchFilter.set($any($event.target).value)"
+              placeholder="Rechercher un cours..."
+              class="w-44 sm:w-56 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
+            />
+          </div>
+
+          <!-- Filtre Matière -->
+          <select
+            [value]="subjectFilter()"
+            (change)="subjectFilter.set($any($event.target).value)"
+            class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-sky-500"
+          >
+            <option value="ALL">Toutes les matières</option>
+            @for (subj of availableSubjects; track subj) {
+              <option [value]="subj">{{ subj }}</option>
+            }
+          </select>
+
+          <!-- Filtre Niveau -->
+          <select
+            [value]="gradeFilter()"
+            (change)="gradeFilter.set($any($event.target).value)"
+            class="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-sky-500"
+          >
+            <option value="ALL">Tous les niveaux</option>
+            @for (gr of availableGrades; track gr) {
+              <option [value]="gr">{{ gr }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- ÉTAT DE CHARGEMENT -->
+      @if (isLoading()) {
+        <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500">
+          <svg class="animate-spin h-8 w-8 text-sky-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          <p class="text-sm font-medium">Chargement de vos supports de cours...</p>
+        </div>
+      } @else if (filteredCourses().length === 0) {
+        <!-- ÉTAT VIDE -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+          <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-3xl mx-auto mb-4">
+            📁
+          </div>
+          <h3 class="text-base font-semibold text-slate-800">
+            Aucun support de cours trouvé
+          </h3>
+          <p class="text-sm text-slate-500 mt-1 max-w-md mx-auto">
+            @if (searchFilter() || subjectFilter() !== 'ALL' || gradeFilter() !== 'ALL') {
+              Aucun cours ne correspond à vos critères de recherche. Essayez de réinitialiser les filtres.
+            } @else {
+              Vous n'avez pas encore téléversé de cours. Remplissez le formulaire ci-dessus pour importer votre premier document PDF.
+            }
+          </p>
+        </div>
+      } @else {
+        <!-- GRILLE DES CARTES DE COURS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          @for (course of filteredCourses(); track course.id) {
+            <article class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-slate-300 transition-all flex flex-col justify-between">
+              
+              <!-- En-tête de la carte -->
+              <div>
+                <div class="flex items-center justify-between gap-3 mb-3">
+                  <div class="flex items-center gap-2">
+                    <span
+                      [class]="getSubjectBadge(course.subject).badgeBg + ' ' + getSubjectBadge(course.subject).badgeText"
+                      class="px-2.5 py-0.5 rounded-full text-xs font-bold"
+                    >
+                      {{ course.subject }}
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+                      {{ course.grade_level }}
+                    </span>
+                  </div>
+
+                  <span class="text-xs text-slate-400 font-medium">
+                    {{ formatDate(course.created_at) }}
+                  </span>
+                </div>
+
+                <!-- Titre du cours -->
+                <h3 class="text-base sm:text-lg font-bold text-slate-900 leading-snug mb-2">
+                  {{ course.title }}
+                </h3>
+
+                <!-- Statut Index / Chapitres -->
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    Indexé & Prêt
+                  </span>
+                  @if (course.topics && course.topics.length > 0) {
+                    <span class="text-xs text-slate-500 font-medium">
+                      {{ course.topics.length }} chapitre(s) généré(s)
+                    </span>
+                  }
+                </div>
+
+                <!-- Résumé succinct généré -->
+                <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/80 mb-4">
+                  <p class="text-xs font-bold text-slate-600 mb-1 flex items-center gap-1.5">
+                    <span>📖</span>
+                    <span>Résumé succinct pour les élèves :</span>
+                  </p>
+                  <p class="text-xs sm:text-sm text-slate-700 leading-relaxed italic line-clamp-3">
+                    « {{ getTopicSummary(course) }} »
+                  </p>
+                </div>
+              </div>
+
+              <!-- Pied de carte avec actions -->
+              <div class="flex items-center justify-between pt-3 border-t border-slate-100 mt-2">
+                <span class="text-xs text-slate-400">
+                  ID Cours : #{{ course.id }}
+                </span>
+
+                <button
+                  type="button"
+                  (click)="openDeleteModal(course)"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition-colors"
+                  title="Supprimer ce cours"
+                >
+                  <span>🗑️</span>
+                  <span>Supprimer</span>
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMATION DE SUPPRESSION SÉCURISÉE -->
+@if (courseToDelete()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
+    <div
+      class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 animate-scale-up"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="delete-modal-title"
+    >
+      <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-2xl mx-auto">
+        🗑️
+      </div>
+
+      <div class="text-center space-y-2">
+        <h3 id="delete-modal-title" class="text-lg font-bold text-slate-900">
+          Supprimer ce cours ?
+        </h3>
+        <p class="text-sm text-slate-600">
+          Êtes-vous sûr de vouloir supprimer définitivement le cours :
+          <br />
+          <strong class="text-slate-900">« {{ courseToDelete()?.title }} »</strong> ?
+        </p>
+        <p class="text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-100">
+          ⚠️ Cette action est irréversible. L'ensemble des index PDF (RAG), résumés et fiches associés seront effacés.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+        <button
+          type="button"
+          (click)="closeDeleteModal()"
+          [disabled]="isDeleting()"
+          class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50"
+        >
+          Annuler
+        </button>
+
+        <button
+          type="button"
+          (click)="confirmDelete()"
+          [disabled]="isDeleting()"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 shadow-sm transition-colors disabled:opacity-50"
+        >
+          @if (isDeleting()) {
+            <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>Suppression...</span>
+          } @else {
+            <span>Supprimer définitivement</span>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
